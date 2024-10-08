@@ -28,11 +28,10 @@
       changed_when: false  # This task only checks the status
 
     - name: Register RHEL system with subscription-manager (if needed)
-      command: |
-        subscription-manager register \
+      command: "subscription-manager register \
         --username {{ rhsm_admin_user }} \
         --password {{ rhsm_admin_pass }} \
-        --auto-attach
+        --auto-attach"
       when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
       register: rhsm_register_output
 
@@ -58,12 +57,11 @@
         v_oscap_report_before: "{{ ansible_facts['hostname'] }}-scap-report-{{ v_backup_timestamp.stdout }}"
 
     - name: Run oscap xccdf evaluation (before)
-      command: |
-        oscap xccdf eval \
+      command: "oscap xccdf eval \
         --profile xccdf_org.ssgproject.content_profile_cis \
         --results /tmp/{{ v_oscap_report_before }}-before.xml \
         --report /tmp/{{ v_oscap_report_before }}-before.html \
-        /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml
+        /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml"
       args:
         chdir: /tmp  # Optional: Run the command in a specific directory
       register: oscap_generate_output  # Capture the command output
@@ -78,10 +76,9 @@
     - name: Remediate and re-evaluate system with OpenSCAP
       block:
         - name: Run oscap remediation
-          command: |
-            oscap xccdf eval \
+          command: "oscap xccdf eval \
             --profile xccdf_org.ssgproject.content_profile_cis \
-            --remediate /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-xccdf.xml 
+            --remediate /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-xccdf.xml"
           register: oscap_remediation_output
           changed_when: true
           ignore_errors: true          
@@ -91,12 +88,11 @@
             var: oscap_remediation_output.stdout
 
         - name: Run oscap xccdf evaluation (after remediation)
-          command: |
-            oscap xccdf eval \
+          command: "oscap xccdf eval \
             --profile xccdf_org.ssgproject.content_profile_cis \
             --results /tmp/{{ v_oscap_report_before }}-after.xml \
             --report /tmp/{{ v_oscap_report_before }}-after.html \
-            /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml
+            /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml"
           args:
             chdir: /tmp  # Optional: Run the command in a specific directory
           register: oscap_remediated_output  # Capture the command output
