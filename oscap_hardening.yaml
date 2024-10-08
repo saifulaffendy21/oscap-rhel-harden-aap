@@ -1,6 +1,6 @@
 ---
 - name: RHEL OS Hardening with OSCAP
-  hosts: rhel9
+  hosts: all
   gather_facts: true
   become: true
   vars:
