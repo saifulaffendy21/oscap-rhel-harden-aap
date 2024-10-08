@@ -55,14 +55,14 @@
 
     - name: Set fact for v_oscap_report_before
       set_fact:
-        v_oscap_report_before: "{{ ansible_facts['hostname'] }}-scap-report-{{ v_backup_timestamp.stdout }}-before.html"
+        v_oscap_report_before: "{{ ansible_facts['hostname'] }}-scap-report-{{ v_backup_timestamp.stdout }}"
 
     - name: Run oscap xccdf evaluation (before)
       command: >
-        oscap xccdf eval
-        --profile xccdf_org.ssgproject.content_profile_cis
-        --results /tmp/{{ v_oscap_report_before }}-before.xml
-        --report /tmp/{{ v_oscap_report_before }}-before.html
+        oscap xccdf eval 
+        --profile xccdf_org.ssgproject.content_profile_cis 
+        --results /tmp/{{ v_oscap_report_before }}-before.xml 
+        --report /tmp/{{ v_oscap_report_before }}-before.html 
         /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml
       args:
         chdir: /tmp  # Optional: Run the command in a specific directory
@@ -78,9 +78,9 @@
     - name: Remediate and re-evaluate system with OpenSCAP
       block:
         - name: Run oscap remediation
-          command: oscap xccdf eval
-            --profile xccdf_org.ssgproject.content_profile_cis
-            --remediate /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-xccdf.xml
+          command: oscap xccdf eval 
+            --profile xccdf_org.ssgproject.content_profile_cis 
+            --remediate /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-xccdf.xml 
           register: oscap_remediation_output
           changed_when: true
           ignore_errors: true          
@@ -91,10 +91,10 @@
 
         - name: Run oscap xccdf evaluation (after remediation)
           command: >
-            oscap xccdf eval
-            --profile xccdf_org.ssgproject.content_profile_cis
-            --results /tmp/{{ v_oscap_report_before }}-after.xml
-            --report /tmp/{{ v_oscap_report_before }}-after.html
+            oscap xccdf eval 
+            --profile xccdf_org.ssgproject.content_profile_cis 
+            --results /tmp/{{ v_oscap_report_before }}-after.xml 
+            --report /tmp/{{ v_oscap_report_before }}-after.html 
             /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml
           args:
             chdir: /tmp  # Optional: Run the command in a specific directory
