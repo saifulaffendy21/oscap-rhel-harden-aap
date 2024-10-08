@@ -1,0 +1,109 @@
+---
+- name: RHEL OS Hardening with OSCAP
+  hosts: rhel9
+  gather_facts: true
+  become: true
+  vars:
+    rhsm_admin_user:   # CONFIG VIA AAP
+    rhsm_admin_pass:   # CONFIG VIA AAP
+    oscap_remediation: "NO"   # CONFIG VIA AAP
+
+  tasks:
+    - name: Extract OS major version from facts
+      set_fact:
+        ansible_distribution_major_version: "{{ ansible_distribution_version.split('.')[0] }}"
+
+    - name: Check if the playbook is running on supported RHEL versions
+      fail:
+        msg: "This playbook only supports RHEL 7, 8, or 9. You are running {{ ansible_distribution }} version {{ ansible_distribution_version }}."
+      when:
+        - ansible_distribution != "RedHat"
+        - ansible_distribution_major_version not in ["7", "8", "9"]
+
+
+    - name: Check subscription-manager status
+      command: subscription-manager status
+      register: rhsm_status_output
+      failed_when: false  # Prevent failure if system is not registered
+      changed_when: false  # This task only checks the status
+
+    - name: Register RHEL system with subscription-manager (if needed)
+      command: >
+        subscription-manager register
+        --username {{ rhsm_admin_user }}
+        --password {{ rhsm_admin_pass }}
+        --auto-attach
+      when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
+      register: rhsm_register_output
+
+    - name: Debug subscription manager registration output
+      debug:
+        var: rhsm_register_output.stdout
+
+    - name: Install OpenSCAP and SSG tools
+      yum:
+        name:
+          - openscap-scanner
+          - scap-security-guide
+          - openscap-utils
+        state: present
+
+    - name: Get the current timestamp
+      command: date +%Y%m%d_%H%M%S
+      register: v_backup_timestamp
+      changed_when: false
+
+    - name: Set fact for v_oscap_report_before
+      set_fact:
+        v_oscap_report_before: "{{ ansible_facts['hostname'] }}-scap-report-{{ v_backup_timestamp.stdout }}-before.html"
+
+    - name: Run oscap xccdf evaluation (before)
+      command: >
+        oscap xccdf eval
+        --profile xccdf_org.ssgproject.content_profile_cis
+        --results /tmp/{{ v_oscap_report_before }}-before.xml
+        --report /tmp/{{ v_oscap_report_before }}-before.html
+        /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml
+      args:
+        chdir: /tmp  # Optional: Run the command in a specific directory
+      register: oscap_generate_output  # Capture the command output
+      failed_when: oscap_generate_output.rc != 0
+      changed_when: true  # Mark task as changed because the command runs an evaluation
+      ignore_errors: true
+
+    - name: Debug oscap output
+      debug:
+        var: oscap_generate_output.stdout
+
+    - name: Remediate and re-evaluate system with OpenSCAP
+      block:
+        - name: Run oscap remediation
+          command: oscap xccdf eval
+            --profile xccdf_org.ssgproject.content_profile_cis
+            --remediate /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-xccdf.xml
+          register: oscap_remediation_output
+          changed_when: true
+
+        - name: Debug oscap output
+          debug:
+            var: oscap_remediation_output.stdout
+
+        - name: Run oscap xccdf evaluation (after remediation)
+          command: >
+            oscap xccdf eval
+            --profile xccdf_org.ssgproject.content_profile_cis
+            --results /tmp/{{ v_oscap_report_before }}-after.xml
+            --report /tmp/{{ v_oscap_report_before }}-after.html
+            /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml
+          args:
+            chdir: /tmp  # Optional: Run the command in a specific directory
+          register: oscap_remediated_output  # Capture the command output
+          changed_when: oscap_remediated_output.rc == 0  # Mark task as changed because the command runs an evaluation
+          ignore_errors: true
+
+        - name: Debug oscap output
+          debug:
+            var: oscap_remediated_output.stdout
+
+      when: oscap_remediation == "YES"
+...
