@@ -69,7 +69,7 @@
     - name: Remediate and re-evaluate system with OpenSCAP
       block:
         - name: Run oscap remediation
-          command: "oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis --remediate /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-xccdf.xml"
+          command: "oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis --remediate /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml"
           register: oscap_remediation_output
           changed_when: true
           ignore_errors: true          
