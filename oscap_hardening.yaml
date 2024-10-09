@@ -7,6 +7,7 @@
 #    rhsm_admin_user:   # CONFIG VIA AAP
 #    rhsm_admin_pass:   # CONFIG VIA AAP
     oscap_remediation: "NO"   # CONFIG VIA AAP
+    oscap_generate_yaml: "NO"
 
   tasks:
     - name: Extract OS major version from facts
@@ -19,7 +20,6 @@
       when:
         - ansible_distribution != "RedHat"
         - ansible_distribution_major_version not in ["7", "8", "9"]
-
 
     - name: Check subscription-manager status
       command: subscription-manager status
@@ -61,6 +61,16 @@
       failed_when: oscap_generate_output.rc != 0
       changed_when: true  # Mark task as changed because the command runs an evaluation
       ignore_errors: true
+
+    - name: Generate oscap generate fix (Ansible)
+      command: "oscap xccdf generate fix --fix-type ansible --output /tmp/{{ v_oscap_report_filename }}_playbookToRemediate.yml --result-id "" /tmp/{{ v_oscap_report_filename }}-before.xml"
+      args:
+        chdir: /tmp  # Optional: Run the command in a specific directory
+      register: oscap_generate_fix  # Capture the command output
+      failed_when: oscap_generate_fix.rc != 0
+      changed_when: true  # Mark task as changed because the command runs an evaluation
+      ignore_errors: true
+      when: when: oscap_generate_yaml == "YES"
 
     - name: Debug oscap output
       debug:
