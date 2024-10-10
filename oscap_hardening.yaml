@@ -75,7 +75,7 @@
       ignore_errors: true
 
     - name: Generate oscap generate fix (Ansible)
-      command: "oscap xccdf generate fix --fix-type ansible --output /tmp/{{ v_oscap_report_filename }}_playbookToRemediate.yml --result-id "" /tmp/{{ v_oscap_report_filename }}-before.xml"
+      command: "oscap xccdf generate fix --fix-type ansible --output /tmp/{{ v_oscap_report_filename }}_playbookToRemediate.yml --result-id '' /tmp/{{ v_oscap_report_filename }}-before.xml"
       args:
         chdir: /tmp  # Optional: Run the command in a specific directory
       register: oscap_generate_fix  # Capture the command output
