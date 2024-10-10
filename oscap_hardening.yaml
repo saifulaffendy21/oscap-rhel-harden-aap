@@ -32,9 +32,11 @@
       when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
       register: rhsm_register_output
 
-    - name: Debug subscription manager registration output
-      debug:
-        var: rhsm_register_output.stdout
+    - name: Ensure the system is registered to Red Hat
+      command: "subscription-manager status"
+      register: rhsm_status
+      failed_when:
+        - "'Overall Status: Unknown' in rhsm_status.stdout"
 
     - name: Install OpenSCAP and SSG tools
       yum:
@@ -53,6 +55,16 @@
       set_fact:
         v_oscap_report_filename: "{{ ansible_facts['hostname'] }}-scap-report-{{ v_backup_timestamp.stdout }}"
 
+    - name: Ensure SCAP data stream exists
+      stat:
+        path: "/usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml"
+      register: scap_content
+      
+    - name: Fail if SCAP content is missing
+      fail:
+        msg: "SCAP content not found for RHEL {{ ansible_distribution_major_version }}"
+      when: scap_content.stat.exists == false
+
     - name: Run oscap xccdf evaluation (before)
       command: "oscap xccdf eval --profile xccdf_org.ssgproject.content_profile_cis --results /tmp/{{ v_oscap_report_filename }}-before.xml --report /tmp/{{ v_oscap_report_filename }}-before.html /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml"
       args:
@@ -70,7 +82,7 @@
       failed_when: oscap_generate_fix.rc != 0
       changed_when: true  # Mark task as changed because the command runs an evaluation
       ignore_errors: true
-      when: when: oscap_generate_yaml == "YES"
+      when: oscap_generate_yaml == "YES"
 
     - name: Debug oscap output
       debug:
