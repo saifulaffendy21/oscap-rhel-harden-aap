@@ -1,0 +1,23 @@
+- name: Install katello-ca-consumer package
+  get_url:
+    url: "https://{{ satellite_server }}/pub/katello-ca-consumer-latest.noarch.rpm"
+    dest: "/tmp/katello-ca-consumer-latest.noarch.rpm"
+
+- name: Install the katello-ca-consumer package
+  yum:
+    name: /tmp/katello-ca-consumer-latest.noarch.rpm
+    state: present
+
+- name: Install subscription-manager package
+  yum:
+    name: subscription-manager
+    state: present
+
+- name: Register the system with Katello/Satellite
+  command: "subscription-manager register --org={{ organization }} --activationkey={{ activation_key }}"
+
+- name: Enable required repositories
+  command: subscription-manager repos --enable=rhel-{{ ansible_distribution_major_version }}-server-rpms --enable=rhel-{{ ansible_distribution_major_version }}-for-x86_64-appstream-rpms --enable=satellite-client-6-for-rhel-{{ ansible_distribution_major_version }}-x86_64-rpms
+
+- name: Refresh subscription-manager facts
+  command: subscription-manager refresh
