@@ -1,5 +1,6 @@
 - name: Install katello-ca-consumer package
   get_url:
+    validate_certs: false
     url: "https://{{ satellite_server }}/pub/katello-ca-consumer-latest.noarch.rpm"
     dest: "/tmp/katello-ca-consumer-latest.noarch.rpm"
 
@@ -16,7 +17,7 @@
     state: present
 
 - name: Register the system with Katello/Satellite
-  command: "subscription-manager register --org={{ organization }} --activationkey={{ activation_key }}"
+  command: "subscription-manager register --org={{ organization }} --activationkey=RHEL{{ ansible_distribution_major_version }}"
 
 - name: Enable required repositories
   command: subscription-manager repos --enable=rhel-{{ ansible_distribution_major_version }}-for-x86_64-baseos-rpms --enable=rhel-{{ ansible_distribution_major_version }}-for-x86_64-appstream-rpms --enable=satellite-client-6-for-rhel-{{ ansible_distribution_major_version }}-x86_64-rpms
