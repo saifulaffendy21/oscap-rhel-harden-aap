@@ -8,16 +8,18 @@
     name: /tmp/katello-ca-consumer-latest.noarch.rpm
     state: present
 
-- name: Install subscription-manager package
-  yum:
-    name: subscription-manager
+- name: Append Satellite server IP address and Hostname to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "192.168.8.13 wiki-ocpv-vm-rhel8-satellite.wikilabs.asia"
+    create: true
     state: present
 
 - name: Register the system with Katello/Satellite
   command: "subscription-manager register --org={{ organization }} --activationkey={{ activation_key }}"
 
 - name: Enable required repositories
-  command: subscription-manager repos --enable=rhel-{{ ansible_distribution_major_version }}-server-rpms --enable=rhel-{{ ansible_distribution_major_version }}-for-x86_64-appstream-rpms --enable=satellite-client-6-for-rhel-{{ ansible_distribution_major_version }}-x86_64-rpms
+  command: subscription-manager repos --enable=rhel-{{ ansible_distribution_major_version }}-for-x86_64-baseos-rpms --enable=rhel-{{ ansible_distribution_major_version }}-for-x86_64-appstream-rpms --enable=satellite-client-6-for-rhel-{{ ansible_distribution_major_version }}-x86_64-rpms
 
 - name: Refresh subscription-manager facts
   command: subscription-manager refresh
