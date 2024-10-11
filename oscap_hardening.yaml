@@ -3,6 +3,7 @@
   hosts: all
   gather_facts: true
   become: true
+  vars_files: katakunciku.yaml # ansible vault
   vars:
 #    rhsm_admin_user:   # CONFIG VIA AAP
 #    rhsm_admin_pass:   # CONFIG VIA AAP
@@ -11,7 +12,6 @@
 #    oscap_security_profile: "xccdf_org.ssgproject.content_profile_cis_server_l1"
 #    satellite_server: "192.168.8.13"   # CONFIG VIA AAP
 #    satellite_organization: "NewWikiLabs"   # CONFIG VIA AAP
-#    satellite_activation_key: "RHEL9"   # CONFIG VIA AAP
 
   tasks:
     - name: Extract OS major version from facts
