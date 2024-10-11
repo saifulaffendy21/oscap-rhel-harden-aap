@@ -8,6 +8,9 @@
 #    rhsm_admin_pass:   # CONFIG VIA AAP
     oscap_remediation: "NO"   # CONFIG VIA AAP
     oscap_generate_yaml: "NO"
+#    satellite_server: "192.168.8.13"   # CONFIG VIA AAP
+#    satellite_organization: "NewWikiLabs"   # CONFIG VIA AAP
+#    satellite_activation_key: "RHEL9"   # CONFIG VIA AAP
 
   tasks:
     - name: Extract OS major version from facts
@@ -16,10 +19,10 @@
 
     - name: Check if the playbook is running on supported RHEL versions
       fail:
-        msg: "This playbook only supports RHEL 7, 8, or 9. You are running {{ ansible_distribution }} version {{ ansible_distribution_version }}."
+        msg: "This playbook only supports RHEL 8 & 9. You are running {{ ansible_distribution }} version {{ ansible_distribution_version }}."
       when:
         - ansible_distribution != "RedHat"
-        - ansible_distribution_major_version not in ["7", "8", "9"]
+        - ansible_distribution_major_version not in ["8", "9"]
 
     - name: Check subscription-manager status
       command: subscription-manager status
@@ -27,16 +30,7 @@
       failed_when: false  # Prevent failure if system is not registered
       changed_when: false  # This task only checks the status
 
-    - name: Register RHEL system with subscription-manager (if needed)
-      command: "subscription-manager register --username {{ rhsm_admin_user }} --password {{ rhsm_admin_pass }} --auto-attach"
-      when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
-      register: rhsm_register_output
-
-    - name: Ensure the system is registered to Red Hat
-      command: "subscription-manager status"
-      register: rhsm_status
-      failed_when:
-        - "'Overall Status: Unknown' in rhsm_status.stdout"
+    - import_playbook: rhel89_satellite.yaml
 
     - name: Install OpenSCAP and SSG tools
       yum:
