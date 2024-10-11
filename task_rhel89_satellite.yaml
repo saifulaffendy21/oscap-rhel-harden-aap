@@ -8,6 +8,7 @@
   yum:
     name: /tmp/katello-ca-consumer-latest.noarch.rpm
     state: present
+    disable_gpg_check: true
 
 - name: Append Satellite server IP address and Hostname to /etc/hosts
   lineinfile:
