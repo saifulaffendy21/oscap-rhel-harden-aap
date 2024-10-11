@@ -32,7 +32,8 @@
       changed_when: false  # This task only checks the status
 
     - name: Register RHEL system into Satellite server
-      import_playbook: task_rhel89_satellite.yaml
+      include:
+        file: task_rhel89_satellite.yaml
       when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
 
     - name: Install OpenSCAP and SSG tools
