@@ -31,7 +31,7 @@
       failed_when: false  # Prevent failure if system is not registered
       changed_when: false  # This task only checks the status
 
-    - import_playbook: rhel89_satellite.yaml
+    - import_playbook: task_rhel89_satellite.yaml
       when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
 
     - name: Install OpenSCAP and SSG tools
