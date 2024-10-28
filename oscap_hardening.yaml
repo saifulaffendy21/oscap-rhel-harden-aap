@@ -3,7 +3,7 @@
   hosts: all
   gather_facts: true
   become: true
-  vars_files: katakunciku.yaml # ansible vault
+  # vars_files: katakunciku.yaml # ansible vault
   vars:
 #    rhsm_admin_user:   # CONFIG VIA AAP
 #    rhsm_admin_pass:   # CONFIG VIA AAP
