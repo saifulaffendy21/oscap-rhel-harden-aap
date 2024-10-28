@@ -14,6 +14,15 @@
 #    satellite_organization: "NewWikiLabs"   # CONFIG VIA AAP
 
   tasks:
+    - name: Set profile variable based on user selection
+    set_fact:
+      oscap_security_profile: >-
+        {% if selected_profile == "CIS Benchmarks Level 1" %}
+          xccdf_org.ssgproject.content_profile_cis_server_l1
+        {% elif selected_profile == "CIS Benchmarks Level 2" %}
+          xccdf_org.ssgproject.content_profile_cis
+        {% endif %}
+          
     - name: Extract OS major version from facts
       set_fact:
         ansible_distribution_major_version: "{{ ansible_distribution_version.split('.')[0] }}"
