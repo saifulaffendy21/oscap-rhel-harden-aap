@@ -5,13 +5,21 @@
     state: present
   when: ansible_os_family == "RedHat"
 
+- name: Find .html and .yml files in /tmp/
+  find:
+    paths: "{{ web_source_dir }}"
+    patterns: ['*.html', '*.yml']
+  register: found_files
+
 - name: Copy .html and .yml files from /tmp/ to /var/www/html
   copy:
-    src: "{{ item }}"
+    src: "{{ item.path }}"
     dest: "{{ web_destination_dir }}"
     remote_src: yes
-  loop: "{{ query('find', web_source_dir, patterns=['*.html', '*.yml']) }}"
-
+  loop: "{{ found_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+    
 - name: Remove default index.html
   file:
     path: "{{ web_destination_dir }}/index.html"
