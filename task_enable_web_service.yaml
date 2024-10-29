@@ -5,25 +5,28 @@
     state: present
   when: ansible_os_family == "RedHat"
 
+- name: Create /var/www/html/oscap directory
+  file:
+    path: /var/www/html/oscap
+    state: directory
+    owner: apache
+    group: apache
+    mode: '0755'
+
 - name: Find .html and .yml files in /tmp/
   find:
     paths: "{{ web_source_dir }}"
     patterns: ['*.html', '*.yml']
   register: found_files
 
-- name: Copy .html and .yml files from /tmp/ to /var/www/html
+- name: Copy .html and .yml files from /tmp/ to /var/www/html/oscap
   copy:
     src: "{{ item.path }}"
     dest: "{{ web_destination_dir }}"
-    remote_src: yes
+    remote_src: true
   loop: "{{ found_files.files }}"
   loop_control:
     label: "{{ item.path }}"
-
-- name: Remove default index.html
-  file:
-    path: "{{ web_destination_dir }}/index.html"
-    state: absent
 
 - name: Ensure the destination directory has the correct permissions
   file:
@@ -36,9 +39,9 @@
   service:
     name: "{{ web_httpd_service }}"
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Inform that the web server is running and provide the URL
   debug:
-    msg: "The web server is now running. You can access it at http://{{ ansible_ssh_host }}"
+    msg: "The web server is now running. You can access it at http://{{ ansible_ssh_host }}/oscap/"
 ...
