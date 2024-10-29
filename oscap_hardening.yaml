@@ -17,9 +17,9 @@
     - name: Set profile variable based on user selection
       set_fact:
         oscap_security_profile: >-
-          {% if selected_profile == "CIS Benchmarks Level 1" %}
+          {% if oscap_selected_profile == "CIS Benchmarks Level 1" %}
             xccdf_org.ssgproject.content_profile_cis_server_l1
-          {% elif selected_profile == "CIS Benchmarks Level 2" %}
+          {% elif oscap_selected_profile == "CIS Benchmarks Level 2" %}
             xccdf_org.ssgproject.content_profile_cis
           {% endif %}
           
