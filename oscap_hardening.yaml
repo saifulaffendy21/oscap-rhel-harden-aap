@@ -12,6 +12,9 @@
 #    oscap_security_profile: "xccdf_org.ssgproject.content_profile_cis_server_l1"
 #    satellite_server: "192.168.8.13"   # CONFIG VIA AAP
 #    satellite_organization: "NewWikiLabs"   # CONFIG VIA AAP
+    web_source_dir: /tmp
+    web_destination_dir: /var/www/html
+    web_httpd_service: httpd
 
   tasks:
     - name: Set profile variable based on user selection
