@@ -1,0 +1,42 @@
+---
+- name: Install Apache HTTP Server
+  yum:
+    name: "{{ web_httpd_service }}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Copy .html and .yml files from /tmp/ to /var/www/html
+  copy:
+    src: "{{ item }}"
+    dest: "{{ web_destination_dir }}"
+    remote_src: yes
+  loop: "{{ query('find', web_source_dir, patterns=['*.html', '*.yml']) }}"
+
+- name: Remove default index.html
+  file:
+    path: "{{ web_destination_dir }}/index.html"
+    state: absent
+
+- name: Ensure the destination directory has the correct permissions
+  file:
+    path: "{{ web_destination_dir }}"
+    owner: apache
+    group: apache
+    mode: '0755'
+
+- name: Ensure Apache HTTP Server is enabled and started
+  service:
+    name: "{{ web_httpd_service }}"
+    state: started
+    enabled: yes
+
+- name: Ensure Apache HTTP Server is enabled and started
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+
+- name: Inform that the web server is running and provide the URL
+  debug:
+    msg: "The web server is now running. You can access it at http://{{ ansible_fqdn }}"
+...
