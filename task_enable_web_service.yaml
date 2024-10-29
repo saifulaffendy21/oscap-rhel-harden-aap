@@ -19,7 +19,7 @@
   loop: "{{ found_files.files }}"
   loop_control:
     label: "{{ item.path }}"
-    
+
 - name: Remove default index.html
   file:
     path: "{{ web_destination_dir }}/index.html"
@@ -37,12 +37,6 @@
     name: "{{ web_httpd_service }}"
     state: started
     enabled: yes
-
-- name: Ensure Apache HTTP Server is enabled and started
-  service:
-    name: firewalld
-    state: stopped
-    enabled: false
 
 - name: Inform that the web server is running and provide the URL
   debug:
