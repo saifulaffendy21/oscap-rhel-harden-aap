@@ -40,5 +40,5 @@
 
 - name: Inform that the web server is running and provide the URL
   debug:
-    msg: "The web server is now running. You can access it at http://{{ ansible_fqdn }}"
+    msg: "The web server is now running. You can access it at http://{{ ansible_default_ipv4.address }}"
 ...
