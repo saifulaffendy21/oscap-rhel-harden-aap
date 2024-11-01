@@ -5,12 +5,6 @@
     state: present
   when: ansible_os_family == "RedHat"
 
-- name: Delete all content in /var/www/html/oscap
-  file:
-    path: /var/www/html/oscap/
-    state: absent
-  ignore_errors: true
-
 - name: Create /var/www/html/oscap directory
   file:
     path: /var/www/html/oscap
