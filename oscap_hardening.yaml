@@ -23,7 +23,8 @@
           {% if oscap_selected_profile == "CIS Benchmarks Level 1" %}
             xccdf_org.ssgproject.content_profile_cis_server_l1
           {% elif oscap_selected_profile == "CIS Benchmarks Level 2" %}
-            xccdf_org.ssgproject.content_profile_cis
+            # xccdf_org.ssgproject.content_profile_cis # DISABLE CIS Benchmarks Level 2 TO PREVENT LOCKOUT
+            xccdf_org.ssgproject.content_profile_cis_server_l1
           {% endif %}
 
     - name: Extract OS major version from facts
