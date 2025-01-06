@@ -1,4 +1,5 @@
-- name: Install katello-ca-consumer package
+---
+- name: Download katello-ca-consumer package
   get_url:
     validate_certs: false
     url: "https://{{ satellite_server }}/pub/katello-ca-consumer-latest.noarch.rpm"
