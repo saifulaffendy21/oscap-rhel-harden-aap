@@ -47,6 +47,10 @@
     - name: Register RHEL system into Satellite server
       include_tasks: task_rhel89_satellite.yaml  # Replaced `include` with `include_tasks`
       when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
+      vars:
+        satellite_server: "{{ satellite_server }}"
+        satellite_orginazation: "{{ satellite_orginazation }}"
+        
 
     - name: Install OpenSCAP and SSG tools
       yum:
@@ -126,3 +130,7 @@
 
     - name: Include tasks to configure web for OSCAP reports
       include_tasks: task_enable_web_service.yaml  # Replaced `include` with `include_tasks`
+      vars:
+        web_source_dir: "{{ web_source_dir }}"
+        web_destination_dir: "{{ web_destination_dir }}"
+        web_httpd_service: "{{ web_httpd_service }}"
