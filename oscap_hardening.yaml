@@ -5,11 +5,9 @@
   become: true
   # vars_files: katakunciku.yaml # ansible vault
   vars:
-    #    rhsm_admin_user:   # CONFIG VIA AAP
-    #    rhsm_admin_pass:   # CONFIG VIA AAP
     oscap_remediation: "NO"   # CONFIG VIA AAP
     oscap_generate_yaml: "NO"
-    #    oscap_security_profile: "xccdf_org.ssgproject.content_profile_cis_server_l1"
+    oscap_security_profile: "xccdf_org.ssgproject.content_profile_cis_server_l1"
     #    satellite_server: "192.168.8.13"   # CONFIG VIA AAP
     #    satellite_organization: "NewWikiLabs"   # CONFIG VIA AAP
     web_source_dir: /tmp
@@ -47,10 +45,6 @@
     - name: Register RHEL system into Satellite server
       include_tasks: task_rhel89_satellite.yaml  # Replaced `include` with `include_tasks`
       when: "'Overall Status: Unknown' in rhsm_status_output.stdout"
-      vars:
-        satellite_server: "{{ satellite_server }}"
-        satellite_orginazation: "{{ satellite_orginazation }}"
-        
 
     - name: Install OpenSCAP and SSG tools
       yum:
@@ -130,7 +124,3 @@
 
     - name: Include tasks to configure web for OSCAP reports
       include_tasks: task_enable_web_service.yaml  # Replaced `include` with `include_tasks`
-      vars:
-        web_source_dir: "{{ web_source_dir }}"
-        web_destination_dir: "{{ web_destination_dir }}"
-        web_httpd_service: "{{ web_httpd_service }}"
